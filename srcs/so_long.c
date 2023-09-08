@@ -1,0 +1,91 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   so_long.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: isettou42 <isettou42@student.42.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/08 11:21:53 by isettou42         #+#    #+#             */
+/*   Updated: 2023/09/08 11:51:01 by isettou42        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../so_long.h"
+
+int	nb_char(char *str, char c);
+
+void	ft_display_map(char **map)
+{
+	int	i;
+
+	i = 0;
+	while (map[i])
+	{
+		ft_printf("%s\n", map[i]);
+		i++;
+	}
+}
+
+int	main(int argc, char **argv)
+{
+	int		map_fd;
+	char	**map;
+
+	if (parsing_arguments(argc, argv))
+		return (ft_putstr_fd("[main] Error arguments\n", 2), 1);
+	map_fd = open(argv[1], O_RDONLY);
+	map = map_extraction(map_fd);
+	if (!map)
+		exit(1);
+	if (parsing_map(map))
+		return (ft_putstr_fd("[main] Error map\n", 2), free_arr_arr(1, map), 1);
+	game_main(map);
+	free_arr_arr(1, map);
+	close(map_fd);
+	return (0);
+}
+
+char	**map_extraction(int map_fd)
+{
+	// int		i;
+	char	*map;
+	char	*tmp;
+	char	**to_return;
+
+	// i = 0;
+	map = NULL;
+	tmp = NULL;
+	while (1)
+	{
+		tmp = get_next_line(map_fd);
+		if (!tmp)
+			break ;
+		map = free_and_join(map, tmp);
+		free(tmp);
+		// i++;
+	}
+	free(tmp);
+	if (map == NULL || !map[0] || ft_strnstr(map, "\n\n", ft_strlen(map)))
+		return (0);
+	to_return = NULL;
+	to_return = ft_split(map, '\n');
+	to_return[nb_char(map, '\n') + 1] = NULL;
+	free(map);
+	return (to_return);
+}
+
+int	nb_char(char *str, char c)
+{
+	int	i;
+	int	nb_occ;
+
+	i = 0;
+	nb_occ = 0;
+	while (str[i])
+	{
+		if (str[i] == c)
+			nb_occ++;
+		i++;
+	}
+	return (nb_occ);
+}

@@ -1,29 +1,59 @@
-RCS = so_long.c\
-
-
-OBJS = ${SRCS:.c=.o}
-
 NAME = so_long
 
-CC = gcc 
+CC = gcc
 
-RM = rm -f
+CFLAGS = -Wall -Wextra -Werror
 
-CFLAGS = -Wall -Werror -Wextra -g
+LIBFT_DIR = libft
 
-all: ${NAME}
+LIBFT = $(LIBFT_DIR)/libft.a
+
+GNL_DIR = gnl
+
+GNL_SRC = $(wildcard $(GNL_DIR)/*.c)
+
+GNL_OBJS = $(GNL_SRC:.c=.o)
+
+SRC_DIR = srcs
+
+SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
+
+MLX_DIR = mlx
+
+MLX_FILES = $(MLX_DIR)/libmlx.a
+
+OBJS = $(SRC_FILES:.c=.o) $(GNL_OBJS)
+
+INCLUDES = -I$(LIBFT_DIR) -I$(GNL_DIR) -I$(SRC_DIR)
+
+LFLAGS = -L$(LIBFT_DIR) -lft -lglfw -framework OpenGL -framework AppKit -framework Cocoa -framework OpenGL -framework IOKit -libmlx -lmlx
+
+all: $(NAME)
+
+$(NAME): $(LIBFT) $(OBJS)
+	@echo "Linking $(NAME)..."
+	@$(CC) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(NAME)
+	@echo "$(NAME) created."
+
+$(LIBFT):
+	@echo "Compiling libft..."
+	@$(MAKE) -C $(LIBFT_DIR) --no-print-directory
+	@echo "libft compiled."
 
 .c.o:
-	${CC} ${CFLAGS} -c $< -o ${<:.c=.o}
+	@echo "Compiling $<..."
 
-${NAME}: ${OBJS}
-	${CC} $(OBJS) -o ${NAME}
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	${RM} ${OBJS}
+	@$(MAKE) -C $(LIBFT_DIR) clean --no-print-directory
+	@echo "Cleaning object files..."
+	@rm -f $(OBJS)
 
 fclean: clean
-	${RM} ${NAME}
+	@$(MAKE) -C $(LIBFT_DIR) fclean --no-print-directory
+	@echo "Cleaning $(NAME)..."
+	@rm -f $(NAME)
 
 re: fclean all
 
